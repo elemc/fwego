@@ -1,0 +1,11 @@
+[Unit]
+Description=FWE Go server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/in/fwego /srv
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
