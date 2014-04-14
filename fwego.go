@@ -5,15 +5,20 @@ import (
 	"github.com/dustin/go-humanize"
 	"io"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"os"
 	"path"
 )
 
+const (
+	BUFFER_SIZE = 4096
+)
+
 var root_path string
 
 func get_table_header() string {
-	result := `    <table width="100%%">
+	result := `    <table>
     <thead>
         <tr>
             <th align="center" width="5%%">Type</th>
@@ -45,6 +50,8 @@ func get_html_header() string {
     a:visited { color:#666 }
     a:hover{ color:#fff; background-color:#000 }
     tr.dir { font-weight: bold }
+    td.icon { font-size: 20px; }
+    a.icon { font-size: 27px; text-decoration: none; }
 </style>
 <meta charset="UTF-8" />
 <title>Files</title>
@@ -63,13 +70,14 @@ func get_html_footer() string {
 	return result
 }
 
+//
 func get_table_string_up(target string) string {
 	result := "<tr>" +
-		"<td></td>" +
-		"<td colspan=\"3\">" +
-		"<a href=\"%s\">%s</a></td>" +
-		"</tr><tr><td colspan=\"4\">&nbsp;</td></tr>"
-	result = fmt.Sprintf(result, parent_path(target), "Up to")
+		"<td align=\"center\">" +
+		"<a class=\"icon\" href=\"%s\">%s</a></td>" +
+		"<td colspan=\"4\"></td>" +
+		"</tr>"
+	result = fmt.Sprintf(result, parent_path(target), "")
 	return result
 }
 
@@ -85,10 +93,10 @@ func get_table_string(target string) string {
 	}
 
 	if stat.IsDir() {
-		t_type = "DIR"
+		t_type = ""
 		t_class = "dir"
 	} else {
-		t_type = "[*]"
+		t_type = ""
 		t_size = humanize.Bytes(uint64(stat.Size()))
 		t_class = "file"
 	}
@@ -97,7 +105,7 @@ func get_table_string(target string) string {
 	t_name = stat.Name()
 
 	result = "<tr class=\"%s\">" +
-		"<td align=\"center\">%s</td>" +
+		"<td class=\"icon\" align=\"center\">%s</td>" +
 		"<td><a href=\"%s\">%s</a></td>" +
 		"<td align=\"right\">%s</td>" +
 		"<td align=\"center\">%s</td></tr>"
@@ -125,11 +133,19 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 		panic(err)
 	}
 
+	mime_type := mime.TypeByExtension(path.Ext(read_path))
+	if mime_type == "" {
+		mime_type = "application/download"
+	}
+
 	oct_length := fmt.Sprintf("%d", stat.Size())
-	download_type := []string{"application/download"}
+	download_type := []string{mime_type}
+	//"application/download"}
 	length := []string{oct_length}
 	w.Header()["Content-Type"] = download_type
 	w.Header()["Content-Length"] = length
+
+	fmt.Printf("Start download file %s\n", read_path)
 
 	file_for_read, err := os.Open(read_path)
 	if err != nil {
@@ -142,7 +158,7 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 		}
 	}()
 
-	buf := make([]byte, 1024)
+	buf := make([]byte, BUFFER_SIZE)
 	for {
 		n, err := file_for_read.Read(buf)
 		if err != nil && err != io.EOF {
@@ -156,6 +172,7 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 			panic(err)
 		}
 	}
+	fmt.Printf("Finished download file %s\n", read_path)
 }
 
 func read_dir(w http.ResponseWriter, path_part string) {
@@ -231,5 +248,5 @@ func main() {
 	}
 
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":3000", nil)
+	http.ListenAndServe(":4000", nil)
 }
