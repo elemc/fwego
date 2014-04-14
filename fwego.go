@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/dustin/go-humanize"
 	"io"
@@ -8,7 +9,9 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"os/user"
 	"path"
+	"strings"
 )
 
 const (
@@ -16,6 +19,9 @@ const (
 )
 
 var root_path string
+var buffer_size uint64
+var listen_string string
+var show_hidden bool
 
 func get_table_header() string {
 	result := `    <table>
@@ -145,7 +151,7 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 	w.Header()["Content-Type"] = download_type
 	w.Header()["Content-Length"] = length
 
-	fmt.Printf("Start download file %s\n", read_path)
+	fmt.Printf("Start download file %s from %s\n", read_path, r.RemoteAddr)
 
 	file_for_read, err := os.Open(read_path)
 	if err != nil {
@@ -172,7 +178,7 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 			panic(err)
 		}
 	}
-	fmt.Printf("Finished download file %s\n", read_path)
+	fmt.Printf("Finished download file %s from %s\n", read_path, r.RemoteAddr)
 }
 
 func read_dir(w http.ResponseWriter, path_part string) {
@@ -190,6 +196,11 @@ func read_dir(w http.ResponseWriter, path_part string) {
 
 	for _, sub_dir := range dir {
 		name := sub_dir.Name()
+		if name[0] == '.' {
+			if !show_hidden {
+				continue
+			}
+		}
 		npath := path.Join(path_part, name)
 
 		r_npath := path.Join(root_path, npath)
@@ -235,18 +246,47 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Printf("Usage: %s <filesystem root path>\n", os.Args[0])
-		os.Exit(1)
-	}
-	root_path = os.Args[1]
-	rp_stat, err := os.Stat(root_path)
-	if err != nil || !rp_stat.IsDir() {
-		fmt.Printf("Target %s doesn't exist or not a directory!", root_path)
-		os.Exit(2)
+func get_real_path(rp string) string {
+	if rp[0] != '~' {
+		return rp
 	}
 
+	usr, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+
+	home_dir := usr.HomeDir
+	new_rp := strings.Replace(rp, "~", home_dir, 1)
+	return new_rp
+}
+
+func init() {
+	var ip = flag.String("address", "127.0.0.1", "Listen IP address")
+	var port = flag.Uint("port", 4000, "Listen IP port")
+	var bs = flag.Uint64("block-size", uint64(BUFFER_SIZE), "Block size for download files")
+	var rp = flag.String("root-path", "", "Root path for browse")
+	var sh = flag.Bool("show-hidden", false, "Show hidden files")
+
+	flag.Parse()
+
+	if *rp == "" {
+		fmt.Printf("Root path (-root-path) doesn't set. Please set it.\n")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	listen_string = fmt.Sprintf("%s:%d", *ip, *port)
+	root_path = get_real_path(*rp)
+	buffer_size = *bs
+	show_hidden = *sh
+
+	// MIME-types
+	mime.AddExtensionType(".sh", "text/plain; charset=UTF-8")
+	mime.AddExtensionType(".repo", "text/plain; charset=UTF-8")
+}
+
+func main() {
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":3000", nil)
+	http.ListenAndServe(listen_string, nil)
 }
