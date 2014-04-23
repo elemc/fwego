@@ -1,5 +1,5 @@
 %global import_path     code.google.com/p/go.net
-%global commit          ac02f093bd88fc9ace3dc998e4ae8e77b7054b62
+%global commit          ffc892a2c3ea18be5fdbbf9520906a53e55bada7
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
