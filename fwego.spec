@@ -1,5 +1,5 @@
 %global import_path     code.google.com/p/go.net
-%global commit          ffc892a2c3ea18be5fdbbf9520906a53e55bada7
+%global commit          2698cf86a6b0b7763f8585240b7b5f5c095277ce
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
@@ -46,11 +46,11 @@ install -m 0644 %{name}.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.con
 install -m 0644 %{name}.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 %files
-### %doc
+%doc README.md
 %{_bindir}/%{name}
 %{_unitdir}/%{name}.service
-%{_sysconfdir}/httpd/conf.d/%{name}.conf
-%{_sysconfdir}/sysconfig/%{name}
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 
 %post
 %systemd_post fwego.service
