@@ -1,0 +1,7 @@
+# This file set environment variables for fwego service
+
+FWEGO_ROOT_PATH="/srv"          # set root path for service
+# FWEGO_LISTEN="localhost:4000" # set listen parameters
+# FWEGO_BLOCK_SIZE="4096"       # set block size for download operation
+FWEGO_SHOW_HIDE="off"           # set show or hide a hidden files (dotten)
+

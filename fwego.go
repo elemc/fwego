@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -76,7 +77,6 @@ func get_html_footer() string {
 	return result
 }
 
-//
 func get_table_string_up(target string) string {
 	result := "<tr>" +
 		"<td align=\"center\">" +
@@ -261,6 +261,28 @@ func get_real_path(rp string) string {
 	return new_rp
 }
 
+func parse_env_vars() {
+	if ev_address := os.Getenv("FWEGO_LISTEN"); ev_address != "" {
+		listen_string = ev_address
+	}
+	if ev_block_size := os.Getenv("FWEGO_BLOCK_SIZE"); ev_block_size != "" {
+		t_buffer_size, err := strconv.ParseUint(ev_block_size, 10, 64)
+		if err == nil {
+			buffer_size = t_buffer_size
+		}
+	}
+	if ev_show_hidden := os.Getenv("FWEGO_SHOW_HIDDEN"); ev_show_hidden != "" {
+		if ev_show_hidden == "true" || ev_show_hidden == "on" || ev_show_hidden == "1" {
+			show_hidden = true
+		} else if ev_show_hidden == "false" || ev_show_hidden == "off" || ev_show_hidden == "0" {
+			show_hidden = false
+		}
+	}
+	if ev_root_path := os.Getenv("FWEGO_ROOT_PATH"); ev_root_path != "" {
+		root_path = get_real_path(ev_root_path)
+	}
+}
+
 func init() {
 	var ip = flag.String("address", "127.0.0.1", "Listen IP address")
 	var port = flag.Uint("port", 4000, "Listen IP port")
@@ -270,20 +292,24 @@ func init() {
 
 	flag.Parse()
 
-	if *rp == "" {
-		fmt.Printf("Root path (-root-path) doesn't set. Please set it.\n")
+	if *rp == "" && os.Getenv("FWEGO_ROOT_PATH") == "" {
+		fmt.Printf("!!! Root path (-root-path) doesn't set.\n!!! Or environment variable FWEGO_ROOT_PATH is not set.\n!!! Please set it.\n")
 		flag.PrintDefaults()
 		os.Exit(1)
+	} else if *rp != "" {
+		root_path = get_real_path(*rp)
 	}
 
 	listen_string = fmt.Sprintf("%s:%d", *ip, *port)
-	root_path = get_real_path(*rp)
 	buffer_size = *bs
 	show_hidden = *sh
 
 	// MIME-types
 	mime.AddExtensionType(".sh", "text/plain; charset=UTF-8")
 	mime.AddExtensionType(".repo", "text/plain; charset=UTF-8")
+
+	// Change variables if environment variables is set
+	parse_env_vars()
 }
 
 func main() {
