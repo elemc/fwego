@@ -1,0 +1,3 @@
+# this file is a sysconfig for fwego service
+
+FWEGO_ROOT_PATH=/srv

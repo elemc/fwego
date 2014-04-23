@@ -1,11 +1,13 @@
 [Unit]
 Description=FWE Go server
 After=network.target
+Before=httpd.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/fwego -root-path=/srv
+ExecStart=/usr/bin/fwego -root-path=$FWEGO_ROOT_PATH
 TimeoutSec=300
+EnvironmentFile=/etc/sysconfig/fwego
 
 [Install]
 WantedBy=multi-user.target
