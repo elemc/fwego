@@ -1,12 +1,12 @@
 %global import_path     code.google.com/p/go.net
-%global commit          ae120303974370757f1c123a82c0f2d28b0762f2
+%global commit          ac02f093bd88fc9ace3dc998e4ae8e77b7054b62
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
 
 Name:           fwego
-Version:        0
-Release:        0.1git%{shortcommit}%{?dist}
+Version:        0.1
+Release:        1git%{shortcommit}%{?dist}
 Summary:        Simple web file browser
 
 License:        GPLv3
