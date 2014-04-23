@@ -5,9 +5,8 @@ Before=httpd.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/fwego -root-path=$FWEGO_ROOT_PATH
+ExecStart=/usr/bin/fwego -root-path=/srv
 TimeoutSec=300
-EnvironmentFile=/etc/sysconfig/fwego
 
 [Install]
 WantedBy=multi-user.target
