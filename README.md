@@ -23,6 +23,29 @@ $ *go install github.com/elemc/fwego*
 $ *$GOPATH/bin/fwego -root-path=/path/for/share -address="0.0.0.0" -port=80*
 See *$GOPATH/bin/fwego --help* for more information
 
+Build with GNU make
+___________________
+
+### Download
+$ *git clone git://github.com/elemc/fwego.git*
+
+### Build
+$ *cd fwego*
+$ *make*
+$ *sudo make install*
+
+if you need httpd configuration file also run this:
+$ *sudo make install-httpd-conf*
+
+### Clean
+$ *make clean*
+
+### Uninstall
+$ *sudo make uninstall*
+
+if you have installed httpd config file run this:
+$ *sudo make uninstall-httpd-conf
+
 Fedora package
 --------------
 ### Contents
