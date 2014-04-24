@@ -6,7 +6,7 @@
 
 Name:           fwego
 Version:        0.1
-Release:        1git%{shortcommit}%{?dist}
+Release:        2git%{shortcommit}%{?dist}
 Summary:        Simple web file browser
 
 License:        GPLv3
@@ -19,12 +19,18 @@ BuildRequires:  systemd
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
-Requires:       httpd
 
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
+%package -n httpd
+BuildArch:      noarch
+Requires:       httpd
+
 %description
 This is simple executable web service for browsable file system catalog as web page.
+
+%description -n httpd
+This package contain configuration file for httpd
 
 %prep
 %setup -qn %{name}-%{commit}
@@ -49,8 +55,10 @@ install -m 0644 %{name}.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 %doc README.md
 %{_bindir}/%{name}
 %{_unitdir}/%{name}.service
-%config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
+
+%files httpd
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 
 %post
 %systemd_post fwego.service
@@ -62,6 +70,9 @@ install -m 0644 %{name}.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 %systemd_postun_with_restart fwego.service 
 
 %changelog
-* Wed Apr 23 2014 Alexei Panov <me AT elemc DOT name> 0-0.1gitae12030
+* Thu Apr 24 2014 Alexei Panov <me AT elemc DOT name> 0.1-2git
+- Split to two packages and use Makefile
+
+* Wed Apr 23 2014 Alexei Panov <me AT elemc DOT name> 0-0.1git
 - Initial build 
 
