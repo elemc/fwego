@@ -1,5 +1,5 @@
 %global import_path     code.google.com/p/go.net
-%global commit          1e71e001ab452e39bf6128ea087b1224c2b01871
+%global commit          88b7e60fc99b0ecd6b8becb9e33acfd80fa2646d
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
@@ -42,6 +42,7 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 %make_install SYSCONFDIR=%{buildroot}%{_sysconfdir} SYSTEMD_UNIT_DIR=%{buildroot}%{_unitdir} BINDIR=%{buildroot}%{_bindir}
+%{__make} install-httpd-conf SYSCONFDIR=%{buildroot}%{_sysconfdir} SYSTEMD_UNIT_DIR=%{buildroot}%{_unitdir} BINDIR=%{buildroot}%{_bindir} DESTDIR=%{?buildroot}
 
 %files
 %doc README.md
