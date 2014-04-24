@@ -3,8 +3,8 @@ fwego
 
 This is simple web service for browse a files written on Go.
 
-Build
------
+Build with go
+-------------
 
 ### Requires
 - golang
@@ -24,7 +24,7 @@ $ *$GOPATH/bin/fwego -root-path=/path/for/share -address="0.0.0.0" -port=80*
 See *$GOPATH/bin/fwego --help* for more information
 
 Build with GNU make
-___________________
+-------------------
 
 ### Download
 $ *git clone git://github.com/elemc/fwego.git*
