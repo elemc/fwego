@@ -1,5 +1,5 @@
 %global import_path     code.google.com/p/go.net
-%global commit          727db67eaf52f608e67acdd3bf69ef82216bdc0c
+%global commit          1e71e001ab452e39bf6128ea087b1224c2b01871
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
@@ -22,14 +22,15 @@ Requires(postun): systemd
 
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
-%package -n httpd
+%package httpd
 BuildArch:      noarch
 Requires:       httpd
+Summary:        fwego httpd configuration file for httpd
 
 %description
 This is simple executable web service for browsable file system catalog as web page.
 
-%description -n httpd
+%description httpd
 This package contain configuration file for httpd
 
 %prep
@@ -40,7 +41,7 @@ make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%make_install SYSCONFDIR=%{_sysconfdir} SYSTEMD_UNIT_DIR=%{_unitdir}
+%make_install SYSCONFDIR=%{buildroot}%{_sysconfdir} SYSTEMD_UNIT_DIR=%{buildroot}%{_unitdir} BINDIR=%{buildroot}%{_bindir}
 
 %files
 %doc README.md

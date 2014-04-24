@@ -4,6 +4,7 @@ SRCPATH:="${GOPATH}/src/${PROJECT_NAME}"
 BINPATH:="${GOPATH}/bin"
 GO_EXEC:=/usr/bin/go
 DESTDIR?=/usr/local
+BINDIR?=${DESTDIR}/bin
 SYSTEMD_UNIT_DIR?=${DESTDIR}/lib/systemd/system
 SYSCONFDIR?=/etc
 
@@ -19,10 +20,10 @@ fwego:
 	@install -m 0755 ${BINPATH}/${PROJECT_NAME} ./${PROJECT_NAME}
 
 install:
-	@[ -d ${DESTDIR}/bin ] || install -d -m 0755 ${DESTDIR}/bin
+	@[ -d ${BINDIR} ] || install -d -m 0755 ${BINDIR}
 	@[ -d ${SYSTEMD_UNIT_DIR} ] || install -d -m 0755 ${SYSTEMD_UNIT_DIR}
 	@[ -d $${SYSCONFDIR}/sysconfig ] || install -d -m 0755 ${SYSCONFDIR}/sysconfig
-	install -m 0755 ${PROJECT_NAME} ${DESTDIR}/bin/${PROJECT_NAME}
+	install -m 0755 ${PROJECT_NAME} ${BINDIR}/${PROJECT_NAME}
 	install -m 0644 ${PROJECT_NAME}.service ${SYSTEMD_UNIT_DIR}/${PROJECT_NAME}.service
 	install -m 0644 ${PROJECT_NAME}.sysconfig ${SYSCONFDIR}/sysconfig/${PROJECT_NAME}
 
