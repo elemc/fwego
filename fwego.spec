@@ -4,28 +4,29 @@
 %global debug_package   %{nil}
 %global __strip         /bin/true
 
-Name:           fwego
-Version:        0.1
-Release:        2git%{shortcommit}%{?dist}
-Summary:        Simple web file browser
+Name:                   fwego
+Version:                0.1
+Release:                2git%{shortcommit}%{?dist}
+Summary:                Simple web file browser
 
-License:        GPLv3
-URL:            http://github.com/elemc/fwego
-Source0:        https://github.com/elemc/%{name}/archive/%{shortcommit}/%{name}-%{shortcommit}.tar.gz
+License:                GPLv3
+URL:                    http://github.com/elemc/fwego
+Source0:                https://github.com/elemc/%{name}/archive/%{shortcommit}/%{name}-%{shortcommit}.tar.gz
 
-BuildRequires:  golang
-BuildRequires:  systemd
+BuildRequires:          golang
+BuildRequires:          systemd
+BuildRequires:          git
 
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
+Requires(post):         systemd
+Requires(preun):        systemd
+Requires(postun):       systemd
 
-ExclusiveArch:  %{ix86} x86_64 %{arm}
+ExclusiveArch:          %{ix86} x86_64 %{arm}
 
 %package httpd
-BuildArch:      noarch
-Requires:       httpd
-Summary:        fwego httpd configuration file for httpd
+BuildArch:              noarch
+Requires:               httpd
+Summary:                fwego httpd configuration file for httpd
 
 %description
 This is simple executable web service for browsable file system catalog as web page.
