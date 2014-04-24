@@ -35,21 +35,12 @@ This package contain configuration file for httpd
 %prep
 %setup -qn %{name}-%{commit}
 
-
 %build
-go build -o %{name}
-
+make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d -m 0755 %{buildroot}%{_bindir}
-install -d -m 0755 %{buildroot}%{_unitdir}
-install -d -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf.d
-install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
-install -m 0755 %{name} %{buildroot}%{_bindir}/%{name}
-install -m 0644 %{name}.service %{buildroot}%{_unitdir}/%{name}.service
-install -m 0644 %{name}.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.conf
-install -m 0644 %{name}.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+%make_install SYSCONFDIR=%{_sysconfdir} SYSTEMD_UNIT_DIR=%{_unitdir}
 
 %files
 %doc README.md
