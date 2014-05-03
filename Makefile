@@ -29,7 +29,11 @@ install:
 
 install-httpd-conf:
 	install -d -m 0755 ${SYSCONFDIR}/httpd/conf.d
-	install -m 0644 ${PROJECT_NAME}.conf ${SYSCONFDIR}/httpd/conf.d/${PROJECT_NAME}.conf
+	install -m 0644 ${PROJECT_NAME}.httpd ${SYSCONFDIR}/httpd/conf.d/${PROJECT_NAME}.conf
+
+install-nginx-conf:
+	install -d -m 0755 ${SYSCONFDIR}/nginx/conf.d
+	install -m 0644 ${PROJECT_NAME}.nginx ${SYSCONFDIR}/nginx/conf.d/${PROJECT_NAME}.conf
 
 clean:
 	@rm -rf ${GOPATH}
@@ -42,3 +46,6 @@ uninstall:
 
 uninstall-httpd-conf:
 	rm -rf ${SYSCONFDIR}/httpd/conf.d/${PROJECT_NAME.conf}
+
+uninstall-nginx-conf:
+	rm -rf ${SYSCONFDIR}/nginx/conf.d/${PROJECT_NAME.conf}
