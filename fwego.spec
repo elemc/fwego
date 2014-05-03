@@ -1,12 +1,12 @@
 %global import_path     code.google.com/p/go.net
-%global commit          88b7e60fc99b0ecd6b8becb9e33acfd80fa2646d
+%global commit          23a7b63ad189d72f6b01214e81a4af6b3e2fe5fd
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
 
 Name:                   fwego
 Version:                0.1
-Release:                2git%{shortcommit}%{?dist}
+Release:                3git%{shortcommit}%{?dist}
 Summary:                Simple web file browser
 
 License:                GPLv3
@@ -28,11 +28,19 @@ BuildArch:              noarch
 Requires:               httpd
 Summary:                fwego httpd configuration file for httpd
 
+%package nginx
+BuildArch:              noarch
+Requires:               nginx
+Summary:                fwego nginx configuration file for nginx
+
 %description
 This is simple executable web service for browsable file system catalog as web page.
 
 %description httpd
 This package contain configuration file for httpd
+
+%description nginx
+This package contain configuration file for nginx
 
 %prep
 %setup -qn %{name}-%{commit}
@@ -44,6 +52,7 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 %make_install SYSCONFDIR=%{buildroot}%{_sysconfdir} SYSTEMD_UNIT_DIR=%{buildroot}%{_unitdir} BINDIR=%{buildroot}%{_bindir}
 %{__make} install-httpd-conf SYSCONFDIR=%{buildroot}%{_sysconfdir} SYSTEMD_UNIT_DIR=%{buildroot}%{_unitdir} BINDIR=%{buildroot}%{_bindir} DESTDIR=%{?buildroot}
+%{__make} install-nginx-conf SYSCONFDIR=%{buildroot}%{_sysconfdir} SYSTEMD_UNIT_DIR=%{buildroot}%{_unitdir} BINDIR=%{buildroot}%{_bindir} DESTDIR=%{?buildroot}
 
 %files
 %doc README.md
@@ -53,6 +62,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files httpd
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
+
+%files nginx
+%config(noreplace) %{_sysconfdir}/nginx/conf.d/%{name}.conf
 
 %post
 %systemd_post fwego.service
@@ -64,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 %systemd_postun_with_restart fwego.service 
 
 %changelog
+* Sun May 04 2014 Alexei Panov <me AT elemc DOT name> 0.1-3git23a7b63
+- Added module file for nginx conf.d
+
 * Thu Apr 24 2014 Alexei Panov <me AT elemc DOT name> 0.1-2git
 - Split to two packages and use Makefile
 

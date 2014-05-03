@@ -37,6 +37,10 @@ $ *sudo make install*
 if you need httpd configuration file also run this:
 $ *sudo make install-httpd-conf*
 
+if you need nginx configuration file also run this:
+$ *sudo make install-nginx-conf*
+
+
 ### Clean
 $ *make clean*
 
@@ -46,18 +50,24 @@ $ *sudo make uninstall*
 if you have installed httpd config file run this:
 $ *sudo make uninstall-httpd-conf
 
-Fedora package
---------------
+if you have installed nginx config file run this:
+$ *sudo make uninstall-nginx-conf
+
+Fedora packages
+---------------
 ### Contents
 - sysconfig script /etc/sysconfig/fwego
 - systemd unit /usr/lib/systemd/system/fwego.service
 - apache configuration file /etc/httpd/conf.d/fwego.conf
+- nginx configuration file /etc/nginx/conf.d/fwego.conf
 
 ### Steps for deploy
 * Change sysconfig script for set root path for share.
 * Change ServerName in apache configuration file
+* Or change server_name in nginx configuration file
 * run fwego: *systemctl start fwego*
 * start or restart httpd: *systemctl restart httpd*
+* or start or restart nginx: *systemctl restart nginx*
 
 Also you may start systemd unit as standalone service. Change sysconfig variable 'FWEGO_LISTEN' for it.
 
