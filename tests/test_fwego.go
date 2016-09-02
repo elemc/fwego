@@ -51,7 +51,7 @@ func main() {
 	}
 
 	body := string(allData)
-	testStr := "<td><a href=\"/fwego\">fwego</a></td>"
+	testStr := "<td><a href=\"/fwego1\">fwego</a></td>"
 	if !strings.Contains(body, testStr) {
 		panic(fmt.Errorf("In body not found fwego record!\n%s", body))
 	}
