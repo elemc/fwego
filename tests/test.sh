@@ -1,7 +1,12 @@
 #!/bin/sh
 
+function kill_fwego {
+    kill `ps ax | grep fwego | grep -v grep | awk {'print $1'}` || panic
+}
+
 function panic {
     echo "Fail"
+    kill_fwego
     exit 1
 }
 
@@ -15,6 +20,6 @@ go build test_fwego.go || panic
 popd > /dev/null 2>&1
 
 # third. kill fwego
-kill `ps ax | grep fwego | grep -v grep | awk {'print $1'}` || panic
+kill_fwego
 
 exit 0
