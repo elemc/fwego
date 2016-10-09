@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/dustin/go-humanize"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -13,6 +13,8 @@ import (
 	"path"
 	"strconv"
 	"strings"
+
+	"github.com/dustin/go-humanize"
 )
 
 const (
@@ -175,7 +177,8 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 		}
 
 		if _, err := w.Write(buf[:n]); err != nil {
-			panic(err)
+			log.Printf("Error in writing buffer to web response: %s", err)
+			return
 		}
 	}
 	fmt.Printf("Finished download file %s from %s\n", read_path, r.RemoteAddr)
