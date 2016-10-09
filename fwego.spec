@@ -1,12 +1,12 @@
 %global import_path     code.google.com/p/go.net
-%global commit          23a7b63ad189d72f6b01214e81a4af6b3e2fe5fd
+%global commit          50f2cb539067d3f2c5afed6baaae070e5b92cc25
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
 
 Name:                   fwego
 Version:                0.1
-Release:                3git%{shortcommit}%{?dist}
+Release:                4git%{shortcommit}%{?dist}
 Summary:                Simple web file browser
 
 License:                GPLv3
@@ -73,9 +73,12 @@ rm -rf $RPM_BUILD_ROOT
 %systemd_preun fwego.service
 
 %postun
-%systemd_postun_with_restart fwego.service 
+%systemd_postun_with_restart fwego.service
 
 %changelog
+* Sun Oct 09 2016 Alexei Panov <me AT elemc DOT name> 0.1-4git%{?dist}
+- Fix panic if write failed
+
 * Sun May 04 2014 Alexei Panov <me AT elemc DOT name> 0.1-3git23a7b63
 - Added module file for nginx conf.d
 
@@ -83,5 +86,4 @@ rm -rf $RPM_BUILD_ROOT
 - Split to two packages and use Makefile
 
 * Wed Apr 23 2014 Alexei Panov <me AT elemc DOT name> 0-0.1git
-- Initial build 
-
+- Initial build
