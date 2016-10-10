@@ -1,12 +1,12 @@
 %global import_path     code.google.com/p/go.net
-%global commit          50f2cb539067d3f2c5afed6baaae070e5b92cc25
+%global commit          b691927ccb3a11dd198562aaae70f96fecf5e16b
 %global shortcommit     %(r=%{commit}; echo ${r:0:7})
 %global debug_package   %{nil}
 %global __strip         /bin/true
 
 Name:                   fwego
 Version:                0.1
-Release:                4git%{shortcommit}%{?dist}
+Release:                6git%{shortcommit}%{?dist}
 Summary:                Simple web file browser
 
 License:                GPLv3
@@ -76,7 +76,13 @@ rm -rf $RPM_BUILD_ROOT
 %systemd_postun_with_restart fwego.service
 
 %changelog
-* Sun Oct 09 2016 Alexei Panov <me AT elemc DOT name> 0.1-4git%{?dist}
+* Mon Oct 10 2016 Alexei Panov <me AT elemc DOT name> 0.1-6
+- Disable debug logging
+
+* Mon Oct 10 2016 Alexei Panov <me AT elemc DOT name> 0.1-5b691927
+- Refactoring for golang rules
+
+* Sun Oct 09 2016 Alexei Panov <me AT elemc DOT name> 0.1-4
 - Fix panic if write failed
 
 * Sun May 04 2014 Alexei Panov <me AT elemc DOT name> 0.1-3git23a7b63

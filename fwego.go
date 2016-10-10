@@ -140,7 +140,7 @@ func readFile(w http.ResponseWriter, r *http.Request, pathPart string) {
 	w.Header()["Content-Type"] = downloadType
 	w.Header()["Content-Length"] = length
 
-	log.Printf("Start download file %s from %s\n", readPath, r.RemoteAddr)
+	//log.Printf("Start download file %s from %s\n", readPath, r.RemoteAddr)
 
 	fileForRead, err := os.Open(readPath)
 	if err != nil {
@@ -171,7 +171,7 @@ func readFile(w http.ResponseWriter, r *http.Request, pathPart string) {
 			return
 		}
 	}
-	log.Printf("Finished download file %s from %s\n", readPath, r.RemoteAddr)
+	//log.Printf("Finished download file %s from %s\n", readPath, r.RemoteAddr)
 }
 
 func readDir(w http.ResponseWriter, pathPart string) {
