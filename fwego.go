@@ -18,16 +18,9 @@ import (
 )
 
 const (
-	BUFFER_SIZE = 4096
-)
-
-var root_path string
-var buffer_size uint64
-var listen_string string
-var show_hidden bool
-
-func get_table_header() string {
-	result := `    <table>
+	// BufferSizeConst is a base buffer size
+	BufferSizeConst = 4096
+	tableHeader     = `    <table>
     <thead>
         <tr>
             <th align="center" width="5%%">Type</th>
@@ -38,18 +31,10 @@ func get_table_header() string {
     </thead>
     <tbody>
 `
-	return result
-}
-
-func get_table_footer() string {
-	result := `    </tbody>
+	tableFooter = `    </tbody>
 </table>
 `
-	return result
-}
-
-func get_html_header() string {
-	result := `<!DOCTYPE html>
+	htmlHeader = `<!DOCTYPE html>
 <html>
 <head>
 <style type="text/css">
@@ -69,108 +54,113 @@ func get_html_header() string {
 <h1><a href="/">Files</a></h1>
 
 `
-	return result
-}
-
-func get_html_footer() string {
-	result := `</body>
+	htmlFooter = `</body>
 </html>
 `
-	return result
-}
+)
 
-func get_table_string_up(target string) string {
+var rootPath string
+var bufferSize uint64
+var listenString string
+var showHidden bool
+
+func getTableStringUp(target string) string {
 	result := "<tr>" +
 		"<td align=\"center\">" +
 		"<a class=\"icon\" href=\"%s\">%s</a></td>" +
 		"<td colspan=\"4\"></td>" +
 		"</tr>"
-	result = fmt.Sprintf(result, parent_path(target), "")
+	result = fmt.Sprintf(result, parentPath(target), "")
 	return result
 }
 
-func get_table_string(target string) string {
-	var t_class, t_type, t_name,
-		t_size, t_date, result string
+func getTableString(target string) string {
+	var tClass, tType, tName,
+		tSize, tDate, result string
 
-	read_path := path.Join(root_path, target)
-	stat, err := os.Stat(read_path)
+	readPath := path.Join(rootPath, target)
+	stat, err := os.Stat(readPath)
 
 	if err != nil {
-		panic(err)
+		log.Printf("Error in getTableString -> os.Stat: %s", err)
+		return ""
 	}
 
 	if stat.IsDir() {
-		t_type = ""
-		t_class = "dir"
+		tType = ""
+		tClass = "dir"
 	} else {
-		t_type = ""
-		t_size = humanize.Bytes(uint64(stat.Size()))
-		t_class = "file"
+		tType = ""
+		tSize = humanize.Bytes(uint64(stat.Size()))
+		tClass = "file"
 	}
 
-	t_date = humanize.Time(stat.ModTime())
-	t_name = stat.Name()
+	tDate = humanize.Time(stat.ModTime())
+	tName = stat.Name()
 
 	result = "<tr class=\"%s\">" +
 		"<td class=\"icon\" align=\"center\">%s</td>" +
 		"<td><a href=\"%s\">%s</a></td>" +
 		"<td align=\"right\">%s</td>" +
 		"<td align=\"center\">%s</td></tr>"
-	result = fmt.Sprintf(result, t_class, t_type, target, t_name, t_size, t_date)
+	result = fmt.Sprintf(result, tClass, tType, target, tName, tSize, tDate)
 	return result
 }
 
-func parent_path(p string) string {
+func parentPath(p string) string {
 	cp := []rune(p)
-	cp_len := len(cp)
-	if cp[cp_len-1] == '/' {
-		cp = cp[:cp_len-1]
+	cpLen := len(cp)
+	if cp[cpLen-1] == '/' {
+		cp = cp[:cpLen-1]
 	}
 
-	parent_dir := path.Dir(string(cp))
-	return parent_dir
+	parentDir := path.Dir(string(cp))
+	return parentDir
 }
 
-func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
+func readFile(w http.ResponseWriter, r *http.Request, pathPart string) {
 
-	read_path := path.Join(root_path, path_part)
+	readPath := path.Join(rootPath, pathPart)
 
-	stat, err := os.Stat(read_path)
+	stat, err := os.Stat(readPath)
 	if err != nil {
-		panic(err)
+		log.Printf("Error in readFile -> os.Stat: %s", err)
+		return
 	}
 
-	mime_type := mime.TypeByExtension(path.Ext(read_path))
-	if mime_type == "" {
-		mime_type = "application/download"
+	mimeType := mime.TypeByExtension(path.Ext(readPath))
+	if mimeType == "" {
+		mimeType = "application/download"
 	}
 
-	oct_length := fmt.Sprintf("%d", stat.Size())
-	download_type := []string{mime_type}
+	octLength := fmt.Sprintf("%d", stat.Size())
+	downloadType := []string{mimeType}
 	//"application/download"}
-	length := []string{oct_length}
-	w.Header()["Content-Type"] = download_type
+	length := []string{octLength}
+	w.Header()["Content-Type"] = downloadType
 	w.Header()["Content-Length"] = length
 
-	fmt.Printf("Start download file %s from %s\n", read_path, r.RemoteAddr)
+	log.Printf("Start download file %s from %s\n", readPath, r.RemoteAddr)
 
-	file_for_read, err := os.Open(read_path)
+	fileForRead, err := os.Open(readPath)
 	if err != nil {
-		panic(err)
+		log.Printf("Error in readFile -> os.Open: %s", err)
+		return
 	}
 
 	defer func() {
-		if err := file_for_read.Close(); err != nil {
-			panic(err)
+		if err := fileForRead.Close(); err != nil {
+			log.Printf("Error in readFile -> fileForRead.Close: %s", err)
+			return
 		}
 	}()
 
-	buf := make([]byte, BUFFER_SIZE)
+	buf := make([]byte, BufferSizeConst)
 	for {
-		n, err := file_for_read.Read(buf)
+		n, err := fileForRead.Read(buf)
 		if err != nil && err != io.EOF {
-			panic(err)
+			log.Printf("Error in readFile -> fileForRead.Read: %s", err)
+			return
 		}
 		if n == 0 {
 			break
@@ -181,33 +171,33 @@ func read_file(w http.ResponseWriter, r *http.Request, path_part string) {
 			return
 		}
 	}
-	fmt.Printf("Finished download file %s from %s\n", read_path, r.RemoteAddr)
+	log.Printf("Finished download file %s from %s\n", readPath, r.RemoteAddr)
 }
 
-func read_dir(w http.ResponseWriter, path_part string) {
-	read_path := path.Join(root_path, path_part)
-	dir, derr := ioutil.ReadDir(read_path)
+func readDir(w http.ResponseWriter, pathPart string) {
+	readPath := path.Join(rootPath, pathPart)
+	dir, derr := ioutil.ReadDir(readPath)
 	if derr != nil {
-		fmt.Fprintf(w, "Oops reading %s", read_path)
+		fmt.Fprintf(w, "Oops reading %s", readPath)
 		return
 	}
-	if path_part != "/" {
-		fmt.Fprintf(w, get_table_string_up(path_part))
+	if pathPart != "/" {
+		fmt.Fprintf(w, getTableStringUp(pathPart))
 	}
 
 	var dirs, files []string
 
-	for _, sub_dir := range dir {
-		name := sub_dir.Name()
+	for _, subDir := range dir {
+		name := subDir.Name()
 		if name[0] == '.' {
-			if !show_hidden {
+			if !showHidden {
 				continue
 			}
 		}
-		npath := path.Join(path_part, name)
+		npath := path.Join(pathPart, name)
 
-		r_npath := path.Join(root_path, npath)
-		stat, err := os.Stat(r_npath)
+		rNpath := path.Join(rootPath, npath)
+		stat, err := os.Stat(rNpath)
 		if err != nil {
 			continue
 		}
@@ -219,77 +209,78 @@ func read_dir(w http.ResponseWriter, path_part string) {
 
 	}
 	for _, dnpath := range dirs {
-		fmt.Fprintf(w, get_table_string(dnpath))
+		fmt.Fprintf(w, getTableString(dnpath))
 	}
 	for _, fnpath := range files {
-		fmt.Fprintf(w, get_table_string(fnpath))
+		fmt.Fprintf(w, getTableString(fnpath))
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	html_type := []string{"text/html"}
-	w.Header()["Content-Type"] = html_type
+	htmlType := []string{"text/html"}
+	w.Header()["Content-Type"] = htmlType
 
-	path_part := r.URL.Path
-	read_path := path.Join(root_path, path_part)
+	pathPart := r.URL.Path
+	readPath := path.Join(rootPath, pathPart)
 
-	rp_stat, err := os.Stat(read_path)
+	rpStat, err := os.Stat(readPath)
 	if err != nil {
 		fmt.Fprintf(w, "No directory or file")
 		return
 	}
-	if rp_stat.IsDir() {
-		fmt.Fprintf(w, get_html_header())
-		fmt.Fprintf(w, get_table_header())
-		read_dir(w, path_part)
-		fmt.Fprintf(w, get_table_footer())
-		fmt.Fprintf(w, get_html_footer())
+	if rpStat.IsDir() {
+		fmt.Fprintf(w, htmlHeader)
+		fmt.Fprintf(w, tableHeader)
+		readDir(w, pathPart)
+		fmt.Fprintf(w, tableFooter)
+		fmt.Fprintf(w, htmlFooter)
 	} else {
-		read_file(w, r, path_part)
+		readFile(w, r, pathPart)
 	}
 }
 
-func get_real_path(rp string) string {
+func getRealPath(rp string) string {
 	if rp[0] != '~' {
 		return rp
 	}
 
 	usr, err := user.Current()
 	if err != nil {
-		panic(err)
+		log.Printf("Error in getRealPath -> user.Current: %s", err)
+		return ""
 	}
 
-	home_dir := usr.HomeDir
-	new_rp := strings.Replace(rp, "~", home_dir, 1)
-	return new_rp
+	homeDir := usr.HomeDir
+	newRP := strings.Replace(rp, "~", homeDir, 1)
+	return newRP
 }
 
-func parse_env_vars() {
-	if ev_address := os.Getenv("FWEGO_LISTEN"); ev_address != "" {
-		listen_string = ev_address
+func parseEnvVars() {
+	if evAddress := os.Getenv("FWEGO_LISTEN"); evAddress != "" {
+		listenString = evAddress
 	}
-	if ev_block_size := os.Getenv("FWEGO_BLOCK_SIZE"); ev_block_size != "" {
-		t_buffer_size, err := strconv.ParseUint(ev_block_size, 10, 64)
+	if evBlockSize := os.Getenv("FWEGO_BLOCK_SIZE"); evBlockSize != "" {
+		tBufferSize, err := strconv.ParseUint(evBlockSize, 10, 64)
 		if err == nil {
-			buffer_size = t_buffer_size
+			bufferSize = tBufferSize
 		}
 	}
-	if ev_show_hidden := os.Getenv("FWEGO_SHOW_HIDDEN"); ev_show_hidden != "" {
-		if ev_show_hidden == "true" || ev_show_hidden == "on" || ev_show_hidden == "1" {
-			show_hidden = true
-		} else if ev_show_hidden == "false" || ev_show_hidden == "off" || ev_show_hidden == "0" {
-			show_hidden = false
+	if evShowHidden := os.Getenv("FWEGO_SHOW_HIDDEN"); evShowHidden != "" {
+		if evShowHidden == "true" || evShowHidden == "on" || evShowHidden == "1" {
+			showHidden = true
+		} else if evShowHidden == "false" || evShowHidden == "off" || evShowHidden == "0" {
+			showHidden = false
 		}
 	}
-	if ev_root_path := os.Getenv("FWEGO_ROOT_PATH"); ev_root_path != "" {
-		root_path = get_real_path(ev_root_path)
+	if evRootPath := os.Getenv("FWEGO_ROOT_PATH"); evRootPath != "" {
+		rootPath = getRealPath(evRootPath)
 	}
 }
 
 func init() {
 	var ip = flag.String("address", "127.0.0.1", "Listen IP address")
 	var port = flag.Uint("port", 4000, "Listen IP port")
-	var bs = flag.Uint64("block-size", uint64(BUFFER_SIZE), "Block size for download files")
+	var bs = flag.Uint64("block-size", uint64(BufferSizeConst), "Block size for download files")
 	var rp = flag.String("root-path", "", "Root path for browse")
 	var sh = flag.Bool("show-hidden", false, "Show hidden files")
 
@@ -300,22 +291,22 @@ func init() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	} else if *rp != "" {
-		root_path = get_real_path(*rp)
+		rootPath = getRealPath(*rp)
 	}
 
-	listen_string = fmt.Sprintf("%s:%d", *ip, *port)
-	buffer_size = *bs
-	show_hidden = *sh
+	listenString = fmt.Sprintf("%s:%d", *ip, *port)
+	bufferSize = *bs
+	showHidden = *sh
 
 	// MIME-types
 	mime.AddExtensionType(".sh", "text/plain; charset=UTF-8")
 	mime.AddExtensionType(".repo", "text/plain; charset=UTF-8")
 
 	// Change variables if environment variables is set
-	parse_env_vars()
+	parseEnvVars()
 }
 
 func main() {
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(listen_string, nil)
+	http.ListenAndServe(listenString, nil)
 }
