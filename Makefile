@@ -15,6 +15,9 @@ fwego:
 	@[ -d ${GOPATH} ] || mkdir -p ${GOPATH}
 	@[ -d ${SRCPATH} ] || mkdir -p ${SRCPATH}
 	@install -m 0644 ${PROJECT_NAME}.go ${SRCPATH}/${PROJECT_NAME}.go
+	@install -m 0644 html.go ${SRCPATH}/html.go
+	@GOPATH=${GOPATH} go get -u github.com/Sirupsen/logrus
+	@GOPATH=${GOPATH} go get -u github.com/valyala/fasthttp
 	@GOPATH=${GOPATH} go get ${PROJECT_NAME}
 	@GOPATH=${GOPATH} go install ${PROJECT_NAME}
 	@install -m 0755 ${BINPATH}/${PROJECT_NAME} ./${PROJECT_NAME}
