@@ -5,8 +5,8 @@
 %global __strip         /bin/true
 
 Name:                   fwego
-Version:                0.1
-Release:                6git%{shortcommit}%{?dist}
+Version:                0.2
+Release:                1git%{shortcommit}%{?dist}
 Summary:                Simple web file browser
 
 License:                GPLv3
